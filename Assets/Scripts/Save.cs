@@ -31,9 +31,15 @@ public class Save : MonoBehaviour
             }
             
             RE.gridSize = lines[0].StringToV2();
+            //Swap the x and y values to make later code simpler.
+            int temp = RE.gridSize.x;
+            RE.gridSize.x = RE.gridSize.y;
+            RE.gridSize.y = temp;
             RE.startPos = lines[1].StringToV2();
+
             string[] goals = lines[2].Split('|');
             RE.goalsPos = new List<Vector2Int>();
+
             foreach (string G in goals)
                 RE.goalsPos.Add(G.StringToV2());
             lines.RemoveRange(0, 3);
@@ -52,13 +58,4 @@ public class Save : MonoBehaviour
         }
         return new RawEnvironment();
     }
-}
-
-[Serializable]
-public class RawEnvironment
-{
-    public Vector2Int gridSize = Vector2Int.zero;
-    public Vector2Int startPos = Vector2Int.zero;
-    public List<Vector2Int> goalsPos = new List<Vector2Int>();
-    public List<Rect> wallRects = new List<Rect>();
 }

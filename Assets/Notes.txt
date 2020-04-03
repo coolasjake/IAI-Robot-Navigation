@@ -1,0 +1,5 @@
+58148 nodes searched before goal was reached in no curation search.
+compared to 54 nodes when the previous nodes are stored.
+
+TODO:
+- add a finished path display to the bots (using line?)

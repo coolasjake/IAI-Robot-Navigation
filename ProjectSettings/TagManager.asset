@@ -41,3 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Cells
+    uniqueID: 3659600325
+    locked: 0
+  - name: Robot
+    uniqueID: 1082455983
+    locked: 0
