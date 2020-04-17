@@ -11,7 +11,8 @@ public class Environment : MonoBehaviour
     public GameObject cellPre;
     public Vector2Int startState = Vector2Int.zero;
     public float cellSize = 80;
-    public RectTransform CellHolder;
+    public Transform CellHolder;
+    public List<Vector2Int> goals = new List<Vector2Int>(); 
     private Canvas canvas;
 
     private GameObject CellVis(Vector2Int coords)
@@ -32,7 +33,10 @@ public class Environment : MonoBehaviour
     void Awake()
     {
         canvas = FindObjectOfType<Canvas>();
-        rawEnv = Save.LoadEnvironment("Assets/RobotNav-test.txt");
+        BuildDebug.Log("Starting Load");
+        string EnvDir = Save.GetDirectory();
+        BuildDebug.Log("Loading Directory: " + EnvDir);
+        rawEnv = Save.LoadEnvironment(EnvDir);
         GenerateGrid();
         GenerateEnvVisuals();
     }
@@ -68,7 +72,10 @@ public class Environment : MonoBehaviour
         startState = rawEnv.startPos;
 
         foreach (Vector2Int goal in rawEnv.goalsPos)
+        {
+            goals.Add(goal);
             SetCell(goal, CellState.Goal);
+        }
     }
 
     private void GenerateEnvVisuals()
@@ -80,8 +87,9 @@ public class Environment : MonoBehaviour
             for (int col = 0; col < rawEnv.gridSize.y; ++col)
             {
                 cellsVis[row, col] = Instantiate(cellPre, CellHolder.transform);
-                cellsVis[row, col].GetComponent<Image>().rectTransform.anchoredPosition = CellRepPos(row, col);
-                cellsVis[row, col].GetComponent<Image>().rectTransform.sizeDelta = new Vector2(cellSize, cellSize);
+                cellsVis[row, col].transform.position = (Vector3)CellRepPos(row, col) + new Vector3(0, 0, 1);
+                cellsVis[row, col].transform.localScale = new Vector2(cellSize, cellSize);
+                cellsVis[row, col].GetComponent<WorldCell>().Coords = row + ", " + col;
             }
         }
 
@@ -95,15 +103,16 @@ public class Environment : MonoBehaviour
                 for (int y = (int)wall.y; j < (int)wall.height; ++y)
                 {
                     ++j;
-                    cellsVis[x, y].GetComponent<Image>().color = Color.black;
+                    cellsVis[x, y].GetComponent<SpriteRenderer>().color = Color.black;
+                    cellsVis[x, y].GetComponent<WorldCell>().color = Color.white;
                 }
             }
         }
 
-        CellVis(rawEnv.startPos).GetComponent<Image>().color = Color.red;
+        CellVis(rawEnv.startPos).GetComponent<SpriteRenderer>().color = Color.red;
 
         foreach (Vector2Int goal in rawEnv.goalsPos)
-            CellVis(goal).GetComponent<Image>().color = Color.green;
+            CellVis(goal).GetComponent<SpriteRenderer>().color = Color.green;
     }
 
     public CellState GetCellState(Vector2Int cell)
@@ -116,7 +125,7 @@ public class Environment : MonoBehaviour
 
     public Vector2 CellRepPos(int x, int y)
     {
-        Vector2 startPos = new Vector2(100, -100); //new Vector2(cellSize, - cellSize * 2); //* rawEnv.gridSize.y);
+        Vector2 startPos = new Vector2(-(rawEnv.gridSize.x * cellSize * 0.5f), (rawEnv.gridSize.y * cellSize * 0.5f)); //new Vector2(cellSize, - cellSize * 2); //* rawEnv.gridSize.y);
         return new Vector3(startPos.x + (x * cellSize), startPos.y - (y * cellSize));
     }
 

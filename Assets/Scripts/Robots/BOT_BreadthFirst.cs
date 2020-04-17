@@ -2,14 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BOTNoCurationBFS : Robot
+public class BOT_BreadthFirst : Robot
 {
-    public List<Node> BFSNodes = new List<Node>();
-    public List<Node> path = new List<Node>();
-
-    public int level = 0;
-    public int nodeIndex = 0;
-    private bool foundGoal = false;
+    protected List<Node> BFSNodes = new List<Node>();
 
     public override void FindSolution()
     {
@@ -19,7 +14,7 @@ public class BOTNoCurationBFS : Robot
         //int nodeIndex = 0;
         bool end = false;
         bool foundGoal = false;
-        BFSNodes.Add(new Node(state, Vector2Int.zero, level, -1));
+        BFSNodes.Add(new Node(initState, Vector2Int.zero, level, -1));
         while (!end && loops < MaxLoops)
         {
             Step();
@@ -42,12 +37,19 @@ public class BOTNoCurationBFS : Robot
         BaseStartUS();
 
         Debug.Log("Setting Variables");
-        level = 0;
+        cost = 0;
         nodeIndex = 0;
         end = false;
         foundGoal = false;
         BFSNodes.Clear();
-        BFSNodes.Add(new Node(state, Vector2Int.zero, level, -1));
+        BFSNodes.Add(new Node(initState, Vector2Int.zero, cost, -1));
+    }
+
+    protected override void CancelUpdateSolution()
+    {
+        BaseEndUS();
+
+        Debug.Log("Cancelling Breadth First");
     }
 
     protected override void StepUpdateSolution()
@@ -61,16 +63,18 @@ public class BOTNoCurationBFS : Robot
         if (nodeIndex >= BFSNodes.Count)
         {
             end = true;
-            Debug.LogWarning("Search ended without finding solution");
+            Debug.LogWarning("Search ended without finding solution. I = " + nodeIndex + ", C = " + BFSNodes.Count);
         }
         else
         {
             Node currentNode = BFSNodes[nodeIndex];
-            Rep.anchoredPosition = env.CellRepPos(currentNode.state);
-            level = currentNode.level + 1;
+            virtualState = currentNode.state;
+            transform.position = env.CellRepPos(currentNode.state);
+            cost = currentNode.cost + 1;
             CellState cell = env.GetCellState(currentNode.state);
             if (cell == CellState.Goal)
             {
+                firstGoal = new Node(currentNode.state, Vector2Int.zero, cost, nodeIndex);
                 end = true;
                 Debug.Log("Found goal: " + currentNode.state);
                 foundGoal = true;
@@ -80,8 +84,9 @@ public class BOTNoCurationBFS : Robot
             {
                 foreach (Vector2Int delta in deltas)
                 {
-                    Node newNode = new Node(currentNode.state + delta, delta, level, nodeIndex);
-                    BFSNodes.Add(newNode);
+                    Node newNode = new Node(currentNode.state + delta, delta, cost, nodeIndex);
+                    if (BFSNodes.Find(X => X.state == newNode.state) == null)
+                        BFSNodes.Add(newNode);
                 }
             }
             ++nodeIndex;
@@ -93,7 +98,7 @@ public class BOTNoCurationBFS : Robot
         //If the goal was found, compile the tree into a path.
         if (foundGoal)
         {
-            Node nextNode = BFSNodes[nodeIndex];
+            Node nextNode = firstGoal;
             while (nextNode.parentIndex != -1)
             {
                 path.Insert(0, BFSNodes[nextNode.parentIndex]);
@@ -101,6 +106,13 @@ public class BOTNoCurationBFS : Robot
             }
         }
 
+        GenerateLineVisual();
+
         BaseEndUS();
+    }
+
+    protected override void LogMemory()
+    {
+        BuildDebug.Log("End Memory Used: " + BFSNodes.Count + " Nodes in tree");
     }
 }

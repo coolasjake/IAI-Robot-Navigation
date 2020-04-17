@@ -2,15 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BOTDepthFirst : Robot
+public class BOT_DepthFirst : Robot
 {
-    public List<Node> usedNodes = new List<Node>();
-    public List<Node> branch = new List<Node>();
-    public List<Node> path = new List<Node>();
-
-    public int level = 0;
-    public int nodeIndex = 0;
-    private bool foundGoal = false;
+    protected List<Node> usedNodes = new List<Node>();
 
     public override void FindSolution()
     {
@@ -20,7 +14,7 @@ public class BOTDepthFirst : Robot
         //int nodeIndex = 0;
         bool end = false;
         bool foundGoal = false;
-        usedNodes.Add(new Node(state, Vector2Int.zero, level, -1));
+        usedNodes.Add(new Node(initState, Vector2Int.zero, level, -1));
         while (!end && loops < MaxLoops)
         {
             Step();
@@ -43,14 +37,21 @@ public class BOTDepthFirst : Robot
         BaseStartUS();
 
         Debug.Log("Setting Variables");
-        level = 0;
+        cost = 0;
         nodeIndex = 0;
         end = false;
         foundGoal = false;
-        branch.Clear();
-        branch.Add(new Node(state, Vector2Int.zero, level, -1));
+        path.Clear();
+        path.Add(new Node(initState, Vector2Int.zero, cost, -1));
         usedNodes.Clear();
-        usedNodes.Add(branch[0]);
+        usedNodes.Add(path[0]);
+    }
+
+    protected override void CancelUpdateSolution()
+    {
+        BaseEndUS();
+
+        Debug.Log("Cancelling Depth First");
     }
 
     protected override void StepUpdateSolution()
@@ -61,20 +62,22 @@ public class BOTDepthFirst : Robot
     private void Step()
     {
         ++loops;
-        if (nodeIndex >= branch.Count || nodeIndex < 0)
+        if (nodeIndex >= path.Count || nodeIndex < 0)
         {
             end = true;
             Debug.LogWarning("Search ended without finding solution");
         }
         else
         {
-            Node currentNode = branch[nodeIndex];
-            Rep.anchoredPosition = env.CellRepPos(currentNode.state);
-            level = currentNode.level + 1;
+            Node currentNode = path[nodeIndex];
+            virtualState = currentNode.state;
+            transform.position = env.CellRepPos(currentNode.state);
+            cost = currentNode.cost + 1;
             CellState cell = env.GetCellState(currentNode.state);
             bool endOfBranch = true;
             if (cell == CellState.Goal)
             {
+                firstGoal = new Node(currentNode.state, Vector2Int.zero, cost, nodeIndex);
                 end = true;
                 Debug.Log("Found goal: " + currentNode.state);
                 foundGoal = true;
@@ -84,11 +87,11 @@ public class BOTDepthFirst : Robot
             {
                 foreach (Vector2Int delta in deltas)
                 {
-                    Node newNode = new Node(currentNode.state + delta, delta, level, nodeIndex);
-                    if (usedNodes.Find(X => X.state == currentNode.state + delta).exists == false)
+                    Node newNode = new Node(currentNode.state + delta, delta, cost, nodeIndex);
+                    if (usedNodes.Find(X => X.state == currentNode.state + delta) == null)
                     {
                         usedNodes.Add(newNode);
-                        branch.Add(newNode);
+                        path.Add(newNode);
                         endOfBranch = false;
                         break;
                     }
@@ -97,7 +100,7 @@ public class BOTDepthFirst : Robot
 
             if (endOfBranch)
             {
-                branch.Remove(currentNode);
+                path.Remove(currentNode);
                 --nodeIndex;
             }
             else
@@ -107,18 +110,17 @@ public class BOTDepthFirst : Robot
 
     protected override void CreateUpdatePath()
     {
-        //If the goal was found, compile the tree into a path.
-        if (foundGoal)
-        {
-            Node nextNode = usedNodes[nodeIndex];
-            while (nextNode.parentIndex != -1)
-            {
-                path.Insert(0, usedNodes[nextNode.parentIndex]);
-                nextNode = usedNodes[nextNode.parentIndex];
-            }
-        }
+        //For DFS the path is the same as the 'current branch'.
+
+        GenerateLineVisual();
 
         BaseEndUS();
+    }
+
+    protected override void LogMemory()
+    {
+        BuildDebug.Log("End Memory Used: " + usedNodes.Count +" Nodes in complete tree + "
+            + path.Count + " Nodes in main Branch = " + (path.Count + usedNodes.Count));
     }
 }
 

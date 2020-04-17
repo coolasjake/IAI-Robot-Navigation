@@ -14,10 +14,36 @@ public class Save : MonoBehaviour
     public static int PlayerLevel = 3;
     List<string> lines = new List<string>();
 
+    public static string GetDirectory()
+    {
+        if (File.Exists("Assets/FileToLoad.txt"))
+        {
+            BuildDebug.Log("Directory instructions found");
+            StreamReader SR = new StreamReader("Assets/FileToLoad.txt");
+            return SR.ReadLine();
+        }
+        else
+            BuildDebug.Log("Directory instructions missing!");
+        return "Assets/RobotNav-test.txt";
+    }
+
     public static RawEnvironment LoadEnvironment(string path)
     {
+        if (!File.Exists(path))
+        {
+            BuildDebug.Log("ERROR loading chosen directory. Swapping to default Environment");
+            if (File.Exists("Assets/RobotNav-test.txt"))
+                path = "Assets/RobotNav-test.txt";
+            else
+            {
+                BuildDebug.Log("ERROR loading default directory.");
+                path = "";
+            }
+        }
+
         if (File.Exists(path))
         {
+            BuildDebug.Log("Loading Chosen Environment");
             RawEnvironment RE = new RawEnvironment();
             List<string> lines = new List<string>();
             StreamReader SR = new StreamReader(path);
