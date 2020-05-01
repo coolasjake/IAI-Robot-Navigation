@@ -1,4 +1,4 @@
-Assets/largeMaze2.txt
+Assets/RobotNav-test.txt
 Assets/ev2.txt
 
 // The first line of this file should be the directory of the environment to be loaded,

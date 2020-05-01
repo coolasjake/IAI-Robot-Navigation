@@ -20,6 +20,7 @@ public class Robot : MonoBehaviour
     protected List<Vector2Int> deltas = new List<Vector2Int>();
     public List<Node> path = new List<Node>();
 
+    public bool moved = false;
     protected bool end = false;
     public int MaxLoops = 3000;
     protected int loops = 0;
@@ -65,7 +66,10 @@ public class Robot : MonoBehaviour
                 {
                     --currentDelay;
                     if (!end && loops < MaxLoops)
+                    {
+                        moved = true;
                         StepUpdateSolution();
+                    }
                     else
                     {
                         CreateUpdatePath();
@@ -86,6 +90,7 @@ public class Robot : MonoBehaviour
         path.Clear();
         line.positionCount = 0;
         realTimeSolutionStarted = true;
+        BreadcrumbManager.singleton.ResetCrumbs();
     }
 
     protected void BaseEndUS()
@@ -100,6 +105,11 @@ public class Robot : MonoBehaviour
         realTimeSolutionStarted = false;
     }
 
+    public void SilentEndUS()
+    {
+        realTimeSolutionStarted = false;
+    }
+
     protected virtual void StartUpdateSolution() { }
 
     protected virtual void CancelUpdateSolution() { }
@@ -107,6 +117,11 @@ public class Robot : MonoBehaviour
     protected virtual void StepUpdateSolution() { }
 
     protected virtual void CreateUpdatePath() { }
+
+    protected void DropBreadcrumb(Vector3 pos)
+    {
+
+    }
 
     protected virtual void GenerateLineVisual()
     {

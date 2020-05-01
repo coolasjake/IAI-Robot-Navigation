@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Controller : MonoBehaviour
 {
@@ -9,11 +10,14 @@ public class Controller : MonoBehaviour
     public List<Robot> robots = new List<Robot>();
     public Camera cam;
     public Camera textCam;
+    public Slider speedSlider;
+    public Text sliderText;
     private float cameraZoom = 5;
     public float cameraDefault = 5;
     public float maxCameraSize = 15;
     public float minCameraSize = 3;
     public float scrollSense = 0.5f;
+    private int updateRate = 3;
 
     // Start is called before the first frame update
     void Start()
@@ -22,6 +26,11 @@ public class Controller : MonoBehaviour
 
         foreach (Robot R in robots)
             R.Init(env);
+
+        BreadcrumbManager.singleton.Init(robots.Count);
+
+        speedSlider.value = 0.05f;
+        CheckSlider();
     }
 
     void Update()
@@ -46,11 +55,35 @@ public class Controller : MonoBehaviour
             textCam.orthographicSize = cameraZoom;
         }
 
-        int i = 0;
-        foreach (Robot R in robots) {
-            ++i;
-            R.UpdateSolutionControl(CheckKey(i));
+        bool startedBot = false;
+        for (int i = 0; i < robots.Count; ++i)
+        {
+            if (CheckKey(i + 1))
+                startedBot = true;
+            if (robots[i].moved)
+                BreadcrumbManager.singleton.PlaceCrumb(robots[i].transform.position, i);
+            robots[i].moved = false;
+            robots[i].UpdateSolutionControl(CheckKey(i + 1));
         }
+
+        if (startedBot)
+        {
+            for (int i = 0; i < robots.Count; ++i)
+            {
+                if (!CheckKey(i + 1))
+                    robots[i].SilentEndUS();
+                robots[i].gameObject.SetActive(CheckKey(i + 1));
+            }
+        }
+
+    }
+
+    public void CheckSlider()
+    {
+        updateRate = (int)(speedSlider.value * 60);
+        sliderText.text = "Updating every " + (Mathf.Round(updateRate / 0.3f) / 100f) + "s";
+        foreach (Robot r in robots)
+            r.stepDelay = updateRate;
     }
 
     private bool CheckKey(int value)
