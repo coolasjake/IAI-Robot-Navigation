@@ -16,15 +16,15 @@ public class Save : MonoBehaviour
 
     public static string GetDirectory()
     {
-        if (File.Exists("Assets/FileToLoad.txt"))
+        if (File.Exists("FileToLoad.txt"))
         {
             BuildDebug.Log("Directory instructions found");
-            StreamReader SR = new StreamReader("Assets/FileToLoad.txt");
+            StreamReader SR = new StreamReader("FileToLoad.txt");
             return SR.ReadLine();
         }
         else
             BuildDebug.Log("Directory instructions missing!");
-        return "Assets/RobotNav-test.txt";
+        return "Environments/RobotNav-test.txt";
     }
 
     public static RawEnvironment LoadEnvironment(string path)
@@ -32,8 +32,8 @@ public class Save : MonoBehaviour
         if (!File.Exists(path))
         {
             BuildDebug.Log("ERROR loading chosen directory. Swapping to default Environment");
-            if (File.Exists("Assets/RobotNav-test.txt"))
-                path = "Assets/RobotNav-test.txt";
+            if (File.Exists("Environments/RobotNav-test.txt"))
+                path = "Environments/RobotNav-test.txt";
             else
             {
                 BuildDebug.Log("ERROR loading default directory.");

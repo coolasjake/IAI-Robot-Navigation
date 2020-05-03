@@ -14,6 +14,17 @@ namespace IAI_Robot_Nav
                 //If the first argument (the 'command') is custom etc, build a custom environment instead of searching.
                 if (args[0].ToLower() == "custom" || args[0].ToLower() == "new" || args[0].ToLower() == "environment")
                     env = new Environment(EnvironmentBuilder.BuildEnvironment());
+                else if (args[0].ToLower() == "print")
+                {
+                    if (args.Length > 1)
+                    {
+                        Console.WriteLine("Printing Environment.");
+                        env = new Environment(args[1]);
+                        env.PrintEnvironment();
+                    }
+                    else
+                        Console.WriteLine("Please specify an environment to print.");
+                }
                 else if (args[0].ToLower() == "search" || args[0].ToLower() == "nicesearch")
                 {
                     if (args.Length > 1)
@@ -53,13 +64,17 @@ namespace IAI_Robot_Nav
                     else
                         bot.PFindSolution();
                 }
+                else
+                    Console.WriteLine("Unknown Command.");
             }
             else
             {
                 Console.WriteLine("Unknown Command");
+                Console.WriteLine("Make sure you run this with arguments from a console.");
                 Console.WriteLine("Use 'search <environment> <method>' to search");
                 Console.WriteLine("Use 'custom' to create a custom environment");
                 Console.WriteLine("Use 'search custom <method>' to create a custom environment and search");
+                Console.ReadLine();
             }
         }
     }

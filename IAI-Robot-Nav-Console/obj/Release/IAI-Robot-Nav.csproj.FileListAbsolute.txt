@@ -1,0 +1,6 @@
+G:\Uni\IntroToAI\IAI-Robot-Navigation\IAI-Robot-Nav-Console\bin\Release\IAI-Robot-Nav.exe
+G:\Uni\IntroToAI\IAI-Robot-Navigation\IAI-Robot-Nav-Console\bin\Release\IAI-Robot-Nav.pdb
+G:\Uni\IntroToAI\IAI-Robot-Navigation\IAI-Robot-Nav-Console\obj\Release\IAI-Robot-Nav.csprojAssemblyReference.cache
+G:\Uni\IntroToAI\IAI-Robot-Navigation\IAI-Robot-Nav-Console\obj\Release\IAI-Robot-Nav.csproj.CoreCompileInputs.cache
+G:\Uni\IntroToAI\IAI-Robot-Navigation\IAI-Robot-Nav-Console\obj\Release\IAI-Robot-Nav.exe
+G:\Uni\IntroToAI\IAI-Robot-Navigation\IAI-Robot-Nav-Console\obj\Release\IAI-Robot-Nav.pdb

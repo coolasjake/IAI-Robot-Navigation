@@ -1,5 +1,4 @@
-Assets/largeMaze3.txt
-Assets/ev2.txt
+Environments/largeMaze3.txt
 
 // The first line of this file should be the directory of the environment to be loaded,
 // with the base directory being the folder that holds the executable.
