@@ -4,6 +4,7 @@ using System.Text;
 
 namespace IAI_Robot_Nav
 {
+    /// <summary> Interface for the Bots to gain information about the environment through. </summary>
     public class Environment
     {
         public RawEnvironment rawEnv = new RawEnvironment();
@@ -12,39 +13,40 @@ namespace IAI_Robot_Nav
         public float cellSize = 80;
         public List<Vector2Int> goals = new List<Vector2Int>();
 
+        /// <summary> Gets the cell a Vector2Int represents. No error checking. </summary>
         private CellState Cell(Vector2Int coords)
         {
             return cells[coords.x, coords.y];
         }
 
+        /// <summary> Sets a cell using a Vector2Int. No error checking. </summary>
         private void SetCell(Vector2Int coords, CellState state)
         {
             cells[coords.x, coords.y] = state;
         }
 
-        /// <summary> Creates the environment using default directories. </summary>
+        /// <summary> Creates the environment using 'FileToLoad' or default directory. </summary>
         public Environment()
         {
             string EnvDir = Save.GetDirectory();
-            //Console.WriteLine("Loading Directory: " + EnvDir);
             rawEnv = Save.LoadEnvironment(EnvDir);
             GenerateGrid();
             PrintEnvironment();
         }
 
-        /// <summary> Creates the environment using default directories. </summary>
+        /// <summary> Creates the environment using the given directory. </summary>
         public Environment(string directory)
         {
             rawEnv = Save.LoadEnvironment(directory);
             GenerateGrid();
         }
 
+        /// <summary> Extracts information from the RawEnvironment and uses it to generate a grid,
+        /// as well as quick references for the start and goals. </summary>
         private void GenerateGrid()
         {
-            //Console.WriteLine("Generating Grid");
-            //Console.WriteLine("Grid Size: " + rawEnv.gridSize.x + ", " + rawEnv.gridSize.y);
+            //Initialize the grid.
             cells = new CellState[rawEnv.gridSize.x, rawEnv.gridSize.y];
-            Vector2Int startPos = new Vector2Int(cellSize, cellSize + cellSize * rawEnv.gridSize.y);
             for (int row = 0; row < rawEnv.gridSize.x; ++row)
             {
                 for (int col = 0; col < rawEnv.gridSize.y; ++col)
@@ -53,6 +55,7 @@ namespace IAI_Robot_Nav
                 }
             }
 
+            //Add the walls first so important cells aren't overwritten.
             foreach (Rect wall in rawEnv.wallRects)
             {
                 int i = 0;
@@ -68,10 +71,11 @@ namespace IAI_Robot_Nav
                 }
             }
 
+            //Add the start (aka Robot), and save it in the quick reference variable.
             SetCell(rawEnv.startPos, CellState.Robot);
             startState = rawEnv.startPos;
-            //Console.WriteLine("Start pos: " + startState);
 
+            //Add each goal, and save them in the quick reference list.
             foreach (Vector2Int goal in rawEnv.goalsPos)
             {
                 goals.Add(goal);
@@ -79,6 +83,7 @@ namespace IAI_Robot_Nav
             }
         }
 
+        /// <summary> Get the 'state' of a cell. Returns null state for OOB. </summary>
         public CellState GetCellState(Vector2Int cell)
         {
             if (cell.Outside(Vector2Int.zero, rawEnv.gridSize - new Vector2Int(1, 1)))
@@ -87,6 +92,7 @@ namespace IAI_Robot_Nav
             return cells[cell.x, cell.y];
         }
 
+        /// <summary> Print a representation of the environment using normal text characters. </summary>
         public void PrintEnvironment()
         {
             for (int y = 0; y < rawEnv.gridSize.y; ++y)
@@ -109,6 +115,7 @@ namespace IAI_Robot_Nav
         }
     }
 
+    /// <summary> Possible states for each cell of the Environment. </summary>
     public enum CellState
     {
         Free,
@@ -117,7 +124,9 @@ namespace IAI_Robot_Nav
         Goal,
         Null
     }
-
+    
+    /// <summary> Data structure which stores information about the Environment as Vector2Ints and Rects.
+    /// TBF: currently the only place the grids size is stored. </summary>
     [System.Serializable]
     public class RawEnvironment
     {

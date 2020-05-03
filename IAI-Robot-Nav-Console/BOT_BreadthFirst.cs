@@ -4,12 +4,15 @@ using System.Text;
 
 namespace IAI_Robot_Nav
 {
+    /// <summary> Uninform Search which expands each level one by one. </summary>
     public class BOT_BreadthFirst : Robot
     {
+        /// <summary> Tree of all nodes including the unsearched frontier. </summary>
         protected List<Node> BFSNodes = new List<Node>();
 
         public BOT_BreadthFirst(Environment Env) : base(Env) { name = "Breadth First"; }
 
+        /// <summary> Initialise the search. Reset lists and values, and add start node to tree. </summary>
         protected override void StartUpdateSolution()
         {
             BaseStartUS();
@@ -35,33 +38,30 @@ namespace IAI_Robot_Nav
             Step();
         }
 
+        /// <summary> Do one iteration of the algorithm. Main Logic here. </summary>
         protected override void Step()
         {
             ++loops;
             if (nodeIndex >= BFSNodes.Count)
-            {
                 end = true;
-                Console.WriteLine("Search ended without finding solution. I = " + nodeIndex + ", C = " + BFSNodes.Count);
-            }
             else
             {
+                //Get the next node to be searched from the tree.
                 Node currentNode = BFSNodes[nodeIndex];
-                virtualState = currentNode.state;
-                //Console.WriteLine("Checking Position: " + currentNode);
-                //transform.position = env.CellRepPos(currentNode.state);
-                cost = currentNode.cost + 1;
+                cost = currentNode.level + 1;
+
+                //End the search if the cell is a goal, or add nodes if it's free.
                 CellState cell = env.GetCellState(currentNode.state);
-                //Console.WriteLine("Node is: " + cell);
                 if (cell == CellState.Goal)
                 {
                     firstGoal = new Node(currentNode.state, Vector2Int.zero, cost, nodeIndex);
                     end = true;
-                    //Console.WriteLine("Found goal: " + currentNode.state);
                     foundGoal = true;
                     return;
                 }
                 else if (cell == CellState.Free || cell == CellState.Robot)
                 {
+                    //Add the cells neighbors to the tree if they aren't already on it.
                     foreach (Vector2Int delta in deltas)
                     {
                         Node newNode = new Node(currentNode.state + delta, delta, cost, nodeIndex);
@@ -69,13 +69,13 @@ namespace IAI_Robot_Nav
                             BFSNodes.Add(newNode);
                     }
                 }
-                ++nodeIndex;
+                ++nodeIndex; //Increment the index of the node beign searched.
             }
         }
 
+        /// <summary> Compile the tree into a path by tracing back the parent of each node. </summary>
         protected override void CreateUpdatePath()
         {
-            //If the goal was found, compile the tree into a path.
             if (foundGoal)
             {
                 Node nextNode = firstGoal;
@@ -90,7 +90,6 @@ namespace IAI_Robot_Nav
         protected override int LogMemory()
         {
             return BFSNodes.Count;
-            Console.WriteLine("End Memory Used: " + BFSNodes.Count + " Nodes in tree");
         }
     }
 

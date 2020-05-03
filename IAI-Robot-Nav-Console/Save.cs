@@ -6,6 +6,8 @@ using System.IO;
 
 namespace IAI_Robot_Nav
 {
+    /// <summary> Class that handles IO for loading environments. Converts text into lists of information in a 'raw environment',
+    /// which the environment then converts into more useable data. </summary>
     public static class Save
     {
 
@@ -14,11 +16,11 @@ namespace IAI_Robot_Nav
         public static string CurrentNodeName;
         public static int PlayerLevel = 3;
 
+        /// <summary> Try to find the "FileToLoad" file and return the directory it specifies, or the default one. </summary>
         public static string GetDirectory()
         {
             if (File.Exists("Environments/FileToLoad.txt"))
             {
-                //Console.WriteLine("Directory instructions found");
                 StreamReader SR = new StreamReader("Environments/FileToLoad.txt");
                 return SR.ReadLine();
             }
@@ -27,6 +29,7 @@ namespace IAI_Robot_Nav
             return "Environments/RobotNav-test.txt";
         }
 
+        /// <summary> Load the given text file and convert the text into Vector2Ints and Rects. Store these in a 'RawEnvironment' and return. </summary>
         public static RawEnvironment LoadEnvironment(string path)
         {
             if (!File.Exists(path))
@@ -43,7 +46,6 @@ namespace IAI_Robot_Nav
 
             if (File.Exists(path))
             {
-                //Console.WriteLine("Loading Chosen Environment");
                 RawEnvironment RE = new RawEnvironment();
                 RE.name = path;
                 List<string> lines = new List<string>();

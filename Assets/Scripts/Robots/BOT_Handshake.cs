@@ -91,7 +91,7 @@ public class BOT_Handshake : Robot
                 nodeIndex = usedNodes.Count;
                 usedNodes.Add(currentNode);
                 transform.position = env.CellRepPos(currentNode.state);
-                cost = currentNode.cost + 1;
+                cost = currentNode.level + 1;
                 CellState cell = env.GetCellState(currentNode.state);
                 if (cell != CellState.Null && cell != CellState.Wall)
                     goalHandshake = goalFrontier.Find(X => X.state == currentNode.state);
@@ -135,7 +135,7 @@ public class BOT_Handshake : Robot
                 usedNodes.Add(currentNode);
                 virtualState = currentNode.state;
                 transform.position = env.CellRepPos(currentNode.state);
-                cost = currentNode.cost + 1;
+                cost = currentNode.level + 1;
                 CellState cell = env.GetCellState(currentNode.state);
                 if (cell != CellState.Null && cell != CellState.Wall)
                     startHandshake = startFrontier.Find(X => X.state == currentNode.state);

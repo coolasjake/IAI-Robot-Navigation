@@ -8,15 +8,17 @@ namespace IAI_Robot_Nav
         {
             Environment env;
 
-
+            //If there is at least one argument, begin execution, otherwise print an error.
             if (args.Length > 0)
             {
+                //If the first argument (the 'command') is custom etc, build a custom environment instead of searching.
                 if (args[0].ToLower() == "custom" || args[0].ToLower() == "new" || args[0].ToLower() == "environment")
                     env = new Environment(EnvironmentBuilder.BuildEnvironment());
                 else if (args[0].ToLower() == "search" || args[0].ToLower() == "nicesearch")
                 {
                     if (args.Length > 1)
                     {
+                        //If the environment name is 'custom' build and use a custom environment, otherwise use the specified one.
                         if (args[1].ToLower() == "custom" || args[1].ToLower() == "new")
                             env = new Environment(EnvironmentBuilder.BuildEnvironment());
                         else
@@ -25,6 +27,7 @@ namespace IAI_Robot_Nav
                     else
                         env = new Environment();
 
+                    //Get the bot specified by arg 3, using BFS as a default.
                     Robot bot = new BOT_BreadthFirst(env);
                     if (args.Length > 2)
                     {
@@ -43,6 +46,8 @@ namespace IAI_Robot_Nav
                         else
                             Console.WriteLine("Argument doesn't match any Bots. Using BFS.");
                     }
+
+                    //Do either a normal or nice search (nice gives much more detailed information like number of iterations).
                     if (args[0].ToLower() == "search")
                         bot.FindSolution();
                     else

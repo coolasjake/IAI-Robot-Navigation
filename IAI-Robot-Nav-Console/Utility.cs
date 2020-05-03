@@ -4,6 +4,7 @@ using System.Text;
 
 namespace IAI_Robot_Nav
 {
+    /// <summary> My custom class of useful mathematical functions and conversions. Added text interpretation for this subject. </summary>
     public static class Utility
     {
         /// <summary> Return true if this float has a greater unsigned value than the comparison float. </summary>

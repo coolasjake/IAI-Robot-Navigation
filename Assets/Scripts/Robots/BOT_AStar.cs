@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class BOT_AStar : Robot
 {
-    protected List<Node> nodeQueue = new List<Node>();
-    protected List<Node> triedNodes = new List<Node>();
+    public List<Node> nodeQueue = new List<Node>();
+    public List<Node> triedNodes = new List<Node>();
 
     public override void FindSolution()
     {
@@ -92,21 +92,31 @@ public class BOT_AStar : Robot
                 foreach (Vector2Int delta in deltas)
                 {
                     cost = FindCost(currentNode.state + delta);
-                    Node newNode = new Node(currentNode.state + delta, delta, cost, nodeIndex);
-                    if (triedNodes.Find(X => X.state == newNode.state) == null && nodeQueue.Find(X => X.state == newNode.state) == null)
+                    Node newNode = new Node(currentNode.state + delta, delta, currentNode.level + 1, cost, nodeIndex);
+                    Node existing = nodeQueue.Find(X => X.state == newNode.state);
+                    if (existing != null)
                     {
-                        int index = nodeQueue.Count;
-                        Node nodeBeingcompared = currentNode;
-                        while (FindCost(nodeBeingcompared.state) >= cost && index > 0)
-                        {
+                        if (Heuristic(newNode) < Heuristic(existing))
+                            nodeQueue.Remove(existing);
+                        else
+                            continue;
+                    }
+
+                    if (triedNodes.Find(X => X.state == newNode.state) == null)
+                    {
+                        int index = nodeQueue.Count - 1;
+                        while (index > 0 && Heuristic(newNode) < Heuristic(nodeQueue[index]))
                             --index;
-                            nodeBeingcompared = nodeQueue[index];
-                        }
-                        nodeQueue.Insert(index, newNode);
+                        nodeQueue.Insert(index + 1, newNode);
                     }
                 }
             }
         }
+    }
+
+    private int Heuristic(Node n)
+    {
+        return n.cost + n.level;
     }
 
     private int FindCost(Vector2Int state)
@@ -114,11 +124,11 @@ public class BOT_AStar : Robot
         int c = 1000000;
         foreach (Vector2Int goal in env.goals)
         {
-            int thisCost = ObliqueDist(state, goal);
-            if (thisCost < c)
-                c = thisCost;
+            int costToGoal = ObliqueDist(state, goal);
+            if (costToGoal < c)
+                c = costToGoal;
         }
-        return c + ObliqueDist(state, initState);
+        return c;
     }
 
     protected override void CreateUpdatePath()

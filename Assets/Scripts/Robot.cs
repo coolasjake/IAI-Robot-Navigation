@@ -157,18 +157,26 @@ public class Robot : MonoBehaviour
     [System.Serializable]
     public class Node
     {
-        //public bool exists;
         public Vector2Int state;
         public Vector2Int actionUsed;
         public int cost;
+        public int level;
         public int parentIndex;
 
         public Node(Vector2Int NewState, Vector2Int Action, int Level, int ParentIndex)
         {
-            //exists = true;
             state = NewState;
             actionUsed = Action;
-            cost = Level;
+            level = Level;
+            parentIndex = ParentIndex;
+        }
+
+        public Node(Vector2Int NewState, Vector2Int Action, int Level, int Cost, int ParentIndex)
+        {
+            state = NewState;
+            actionUsed = Action;
+            level = Level;
+            cost = Cost;
             parentIndex = ParentIndex;
         }
     }

@@ -70,7 +70,7 @@ public class BOT_BreadthFirst : Robot
             Node currentNode = BFSNodes[nodeIndex];
             virtualState = currentNode.state;
             transform.position = env.CellRepPos(currentNode.state);
-            cost = currentNode.cost + 1;
+            cost = currentNode.level + 1;
             CellState cell = env.GetCellState(currentNode.state);
             if (cell == CellState.Goal)
             {

@@ -4,12 +4,16 @@ using System.Text;
 
 namespace IAI_Robot_Nav
 {
+    /// <summary> Depth-First Uninformed Search.
+    /// Searches the tree by choosing the deepest node first, and backtracking if the path fails. </summary>
     public class BOT_DepthFirst : Robot
     {
+        /// <summary> List of used nodes to prevent repeat checks. Effectively the 'tree' of this search. </summary>
         protected List<Node> usedNodes = new List<Node>();
 
         public BOT_DepthFirst(Environment Env) : base(Env) { name = "Depth First"; }
 
+        /// <summary> Initialise the search. Reset lists and values, and add start node to tree. </summary>
         protected override void StartUpdateSolution()
         {
             BaseStartUS();
@@ -37,31 +41,32 @@ namespace IAI_Robot_Nav
             Step();
         }
 
+        /// <summary> Do one iteration of the algorithm. Main Logic here. </summary>
         protected override void Step()
         {
             ++loops;
             if (nodeIndex >= path.Count || nodeIndex < 0)
-            {
                 end = true;
-            }
             else
             {
+                //Get the next node to check
                 Node currentNode = path[nodeIndex];
-                virtualState = currentNode.state;
-                //transform.position = env.CellRepPos(currentNode.state);
-                cost = currentNode.cost + 1;
+                cost = currentNode.level + 1;
+
+                //Get the type of this cell, and either finish the search at a goal, or continue search for a free cell.
                 CellState cell = env.GetCellState(currentNode.state);
                 bool endOfBranch = true;
                 if (cell == CellState.Goal)
                 {
+                    //Signal that the search has succeded.
                     firstGoal = new Node(currentNode.state, Vector2Int.zero, cost, nodeIndex);
                     end = true;
-                    //Console.WriteLine("Found goal: " + currentNode.state);
                     foundGoal = true;
                     return;
                 }
                 else if (cell == CellState.Free || cell == CellState.Robot)
                 {
+                    //Check each neghbor of this node (in the arbitrary order) and queue the first valid one.
                     foreach (Vector2Int delta in deltas)
                     {
                         Node newNode = new Node(currentNode.state + delta, delta, cost, nodeIndex);
@@ -75,6 +80,8 @@ namespace IAI_Robot_Nav
                     }
                 }
 
+                //If there were no options to search, remove the node from the current branch (path), and set the index to search to it's parent.
+                //Otherwise increment the node index.
                 if (endOfBranch)
                 {
                     path.Remove(currentNode);
@@ -93,8 +100,6 @@ namespace IAI_Robot_Nav
         protected override int LogMemory()
         {
             return usedNodes.Count;
-            Console.WriteLine("End Memory Used: " + usedNodes.Count + " Nodes in complete tree + "
-                + path.Count + " Nodes in main Branch = " + (path.Count + usedNodes.Count));
         }
     }
 

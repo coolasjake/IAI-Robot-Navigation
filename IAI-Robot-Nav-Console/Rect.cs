@@ -4,6 +4,7 @@ using System.Text;
 
 namespace IAI_Robot_Nav
 {
+    /// <summary> Copy of the Rect struct from Unity. Similar to a tuple. </summary>
     public class Rect
     {
         public float x;

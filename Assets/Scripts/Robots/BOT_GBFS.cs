@@ -92,17 +92,22 @@ public class BOT_GBFS : Robot
                 foreach (Vector2Int delta in deltas)
                 {
                     cost = FindCost(currentNode.state + delta);
-                    Node newNode = new Node(currentNode.state + delta, delta, cost, nodeIndex);
-                    if (triedNodes.Find(X => X.state == newNode.state) == null && nodeQueue.Find(X => X.state == newNode.state) == null)
+                    Node newNode = new Node(currentNode.state + delta, delta, currentNode.level + 1, cost, nodeIndex);
+                    Node existing = nodeQueue.Find(X => X.state == newNode.state);
+                    if (existing != null)
                     {
-                        int index = nodeQueue.Count;
-                        Node nodeBeingcompared = currentNode;
-                        while (FindCost(nodeBeingcompared.state) >= cost && index > 0)
-                        {
+                        if (newNode.cost < existing.cost)
+                            nodeQueue.Remove(existing);
+                        else
+                            continue;
+                    }
+
+                    if (triedNodes.Find(X => X.state == newNode.state) == null)
+                    {
+                        int index = nodeQueue.Count - 1;
+                        while (index > 0 && newNode.cost < nodeQueue[index].cost)
                             --index;
-                            nodeBeingcompared = nodeQueue[index];
-                        }
-                        nodeQueue.Insert(index, newNode);
+                        nodeQueue.Insert(index + 1, newNode);
                     }
                 }
             }

@@ -72,7 +72,7 @@ public class BOT_DepthFirst : Robot
             Node currentNode = path[nodeIndex];
             virtualState = currentNode.state;
             transform.position = env.CellRepPos(currentNode.state);
-            cost = currentNode.cost + 1;
+            cost = currentNode.level + 1;
             CellState cell = env.GetCellState(currentNode.state);
             bool endOfBranch = true;
             if (cell == CellState.Goal)
